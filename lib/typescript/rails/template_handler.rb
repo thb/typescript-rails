@@ -8,7 +8,8 @@ class Typescript::Rails::TemplateHandler
 
     def call(template)
       compiled_source = erb_handler.call(template)
-      path = template.identifier.gsub(/['\\]/, '\\\\\&') # "'" => "\\'", '\\' => '\\\\'
+      #path = template.identifier.gsub(/['\\]/, '\\\\\&') # "'" => "\\'", '\\' => '\\\\'
+      path = template.identifier.gsub(%r!(^///\s<reference\s+path=")([^"]+)("\s/>\s*)!) {|m| $1 + File.join(escaped_dir, $2) + $3 }
       <<-EOS
         ::Typescript::Rails::Compiler.compile('#{path}', (begin;#{compiled_source};end))
       EOS
